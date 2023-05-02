@@ -14,25 +14,27 @@ class WeatherViewController: UIViewController {
     @IBOutlet weak var cityLabel: UILabel!
     @IBOutlet weak var searchTextField: UITextField!
     
-    let weatherManager = WeatherManager()
+    var weatherManager = WeatherManager()
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        weatherManager.delegate = self
         searchTextField.delegate = self
     }
 
 
     @IBAction func searchPressed(_ sender: UIButton) {
         searchTextField.endEditing(true)
-        print(searchTextField.text!)
+//        print(searchTextField.text!)
     }
 }
 
-extension WeatherViewController: UITextFieldDelegate {
+extension WeatherViewController: UITextFieldDelegate, WeatherManagerDelegate {
+    //MARK: -UITextFieldDelegate
     //Спрашивает делегата, следует ли обрабатывать нажатие кнопки «Возврат» на клавиатуре для текстового поля.
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {
         searchTextField.endEditing(true)
-        print(searchTextField.text!)
+//        print(searchTextField.text!)
         return true
     }
     
@@ -53,5 +55,19 @@ extension WeatherViewController: UITextFieldDelegate {
             return false
         }
     }
+    
+    //MARK: -WeatherManagerDelegate
+    func didUpdateWeather(_ weatherManager: WeatherManager, weather: WeatherModel) {
+        DispatchQueue.main.async {
+            self.temperatureLabel.text = weather.temperatureString
+            self.cityLabel.text = weather.cityName
+            self.conditionImageView.image = UIImage(systemName: weather.conditionName)
+        }
+    }
+    
+    func didFailWithError(error: Error) {
+        print(error)
+    }
+
 }
 
