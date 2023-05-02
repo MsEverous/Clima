@@ -21,10 +21,10 @@ class WeatherViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        locationManager.requestWhenInUseAuthorization()
+        locationManager.requestWhenInUseAuthorization() //Чтобы спрашивал разрешение на определение геопозиции
         //Также в info.plist надо добавить KEY: Privacy - Location When In Use Usage Description
         locationManager.delegate = self
-        locationManager.requestLocation()
+        locationManager.requestLocation() //Разовое определение геопозиции
         weatherManager.delegate = self
         searchTextField.delegate = self
     }
@@ -87,7 +87,7 @@ extension WeatherViewController: UITextFieldDelegate, WeatherManagerDelegate {
 extension WeatherViewController: CLLocationManagerDelegate {
     func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
         if let location = locations.last {
-            locationManager.stopUpdatingLocation()
+            locationManager.stopUpdatingLocation() //Останавливает определение локации чтобы при нажатии на кнопку определении геопозиции функция reqestLocation отрабатывала
             let lat = location.coordinate.latitude
             let lon = location.coordinate.longitude
             weatherManager.fetchWeather(latitude: lat, longitude: lon)
