@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import CoreLocation
 
 class WeatherViewController: UIViewController {
 
@@ -13,16 +14,26 @@ class WeatherViewController: UIViewController {
     @IBOutlet weak var temperatureLabel: UILabel!
     @IBOutlet weak var cityLabel: UILabel!
     @IBOutlet weak var searchTextField: UITextField!
+    @IBOutlet weak var currentLocation: UIButton!
     
     var weatherManager = WeatherManager()
+    let locationManager = CLLocationManager() //Объект, который используется для запуска и остановки доставки событий, связанных с местоположением.
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        locationManager.requestWhenInUseAuthorization()
+        //Также в info.plist надо добавить KEY: Privacy - Location When In Use Usage Description
+        locationManager.delegate = self
+        locationManager.requestLocation()
         weatherManager.delegate = self
         searchTextField.delegate = self
     }
 
 
+    @IBAction func currentLocationPressed(_ sender: UIButton) {
+        locationManager.requestLocation()
+    }
+    
     @IBAction func searchPressed(_ sender: UIButton) {
         searchTextField.endEditing(true)
 //        print(searchTextField.text!)
@@ -69,5 +80,22 @@ extension WeatherViewController: UITextFieldDelegate, WeatherManagerDelegate {
         print(error)
     }
 
+}
+
+//MARK: -CLLocationManagerDelegate
+
+extension WeatherViewController: CLLocationManagerDelegate {
+    func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
+        if let location = locations.last {
+            locationManager.stopUpdatingLocation()
+            let lat = location.coordinate.latitude
+            let lon = location.coordinate.longitude
+            weatherManager.fetchWeather(latitude: lat, longitude: lon)
+        }
+    }
+    
+    func locationManager(_ manager: CLLocationManager, didFailWithError error: Error) {
+        print(error)
+    }
 }
 
